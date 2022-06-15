@@ -1,0 +1,40 @@
+.dot-red::before {
+  font-size: 1.5em;
+  content: "\25cf";
+  color: #e3342f;
+}
+.dot-green::before {
+  font-size: 1.5em;
+  content: "\25cf";
+  color: #38c172;
+}
+.dot-blue::before {
+  font-size: 1.0em;
+  content: "\25cf";
+  color: #1b5c66;
+}
+
+.att-red{
+  color: #e3342f;
+}
+.att-green{
+  color: #38c172;
+}
+.att-blue{
+  color: #1b5c66;
+}
+
+.btn-att{
+  padding: 0;
+}
+
+.btn-att.btn-att-tambah{
+  color: white;
+}
+.btn-att.btn-att-tambah: hover{
+  color: #1b5c66;
+}
+
+.table-att td, .table-att th, .table-pc td, .table-pc th {
+  padding: 0.3rem!important;
+}
