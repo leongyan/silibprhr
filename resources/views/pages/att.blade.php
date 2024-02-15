@@ -24,7 +24,7 @@
                                         @endfor
                                     </select>
                                     <select class="form-control" name="year">
-                                        @for($i = date('Y'); $i >= 2020; $i--)
+                                        @for($i = date('Y') + 1; $i >= 2020; $i--)
                                         <option value="{{ $i }}" {{ $i === (int)$end->format('Y') ? "selected" : "" }}>{{ $i }}</option>
                                         @endfor
                                     </select>
@@ -51,6 +51,22 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-inline justify-content-end">
+                                <button type="button" class="btn btn-info btn-link" data-toggle="popover"
+                                    title="Kode CSV Kehadiran" data-placement="left" data-html="true"
+                                    data-content="<code class='text-default font-weight-bold'>
+                                    . = Hadir<br>
+                                    w = WFH<br>
+                                    d = Dinas<br>
+                                    s = Sakit dgn Ket. Dokter<br>
+                                    c = Cuti Pribadi<br>
+                                    b = Cuti Bersama<br>
+                                    k = Cuti Khusus<br>
+                                    s- = Sakit tanpa Ket. Dokter<br>
+                                    i = Izin<br>
+                                    a = Absen tanpa Keterangan
+                                    </code>">
+                                        <i class="tim-icons icon-alert-circle-exc"></i>
+                                </button>
                                 <form class="form-inline justify-content-end" action="/{{$db}}/kehadiran/getcsv" method="POST">
                                     @csrf
                                     <input type="hidden" name="tgl" value="{{$end}}">
@@ -347,7 +363,7 @@
 @push('js')
     <script type="text/javascript">
         $(document).ready(function() {
-
+            $("[data-toggle=popover]").popover();
         });
 
         $(".btn-att.btn-att-edit").click(function(){

@@ -24,7 +24,7 @@
                                     @endfor
                                 </select>
                                 <select class="form-control" name="year">
-                                    @for($i = date('Y'); $i >= 2020; $i--)
+                                    @for($i = date('Y') + 1; $i >= 2020; $i--)
                                     <option value="{{ $i }}" {{ $i === (int)$date->format('Y') ? "selected" : "" }}>{{ $i }}</option>
                                     @endfor
                                 </select>
@@ -250,9 +250,17 @@
                                                 </tr>
                                                 @endforeach
                                                 <tr class="text-right">
-                                                    <td colspan="4"></td>
+                                                    <td colspan="2"></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_kesprs) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_keskry) }}</b></td>
                                                     <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjskes) }}</b></td>
-                                                    <td colspan="7"></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jhtprs) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jhtkry) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jkk) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jkm) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf(0) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jpprs) }}</b></td>
+                                                    <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_jpkry) }}</b></td>
                                                     <td><b>{{ \App\Helpers\AppHelper::instance()->mf($total_bpjstk) }}</b></td>
                                                 </tr>
                                             @endif
@@ -266,6 +274,28 @@
                                                 HITUNG
                                             </button>
                                         </form>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="col-md-5">BPJS Kes Tanggungan Prs</div>
+                                                <div class="col-md-6">{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_kesprs) }}</div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-md-5">BPJS Kes Tanggungan Kry</div>
+                                                <div class="col-md-6">{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_keskry) }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="row">
+                                                <div class="col-md-5">BPJS TK Tanggungan Prs</div>
+                                                <div class="col-md-6">{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_tkprs) }}</div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <div class="col-md-5">BPJS TK Tanggungan Kry</div>
+                                                <div class="col-md-6">{{ \App\Helpers\AppHelper::instance()->mf($total_bpjs_tkkry) }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -410,7 +440,15 @@
                                                 </tr>
                                                 @endforeach
                                                 <tr class="text-right">
-                                                    <td colspan="{{ $date->format('m') == 12 ? 9 : 8 }}"></td>
+                                                    <td colspan="2"></td>
+                                                    <td><b>{{ App\Helpers\AppHelper::instance()->mf($total_pendbruto_pajak) }}</b></td>
+													@if($date->format('m') == 12)
+														<td>{{ App\Helpers\AppHelper::instance()->mf($total_pendbruto_pajak12) }}</td>
+														<td colspan='4'></td>
+														<td>{{ App\Helpers\AppHelper::instance()->mf($total_pajak12) }}</td>
+													@else
+														<td colspan='5'></td>
+													@endif
                                                     <td><b>{{ App\Helpers\AppHelper::instance()->mf($total_pajak) }}</b></td>
                                                     <td>{{ App\Helpers\AppHelper::instance()->mf($total_pajak_paid) }}</td>
                                                 </tr>
@@ -425,6 +463,15 @@
                                                 GET CSV
                                             </button>
                                         </form>
+                                        @if($date->format('m') == 12)
+                                        <form action="/{{$db}}/gajian/pajak/csvfinal" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="per" value="{{ $date->format('Y') }}">
+                                            <button type="submit" class="btn btn-sm btn-simple">
+                                                GET CSV FINAL
+                                            </button>
+                                        </form>
+                                        @endif
                                         <form action="/{{$db}}/gajian/simpan/pajak" data-msg="Simpan pajak yang sudah dibayar?" method="post">
                                             @csrf
                                             <input type="hidden" name="per" value="{{ $date->format('Ym') }}">
@@ -509,7 +556,17 @@
                                             @endif
                                         </tbody>
                                     </table>
+                                    @if($date->format('m') == 12)
+                                    <div class="text-right">
+                                        <form action="/{{$db}}/gajian/rekap/csv" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="per" value="{{ $date->format('Y')}}">
+                                            <button type="submit" class="btn btn-sm btn-simple">GET CSV</button>
+                                        </form>
+                                    </div>
+                                    @endif
                                 </div>
+                                
                             </div>
                         </div>
                     </div>

@@ -35,6 +35,8 @@ define('PPH_LIMIT_3_2022', 500000000);
 define('MAX_CUTI', 12);
 define('MAX_CUTI_PRIBADI', 8);
 define('AVG_WORK_DAYS', 21);
+define('PPH_TER2024', 0);
+
 
 class PayController extends Controller
 {
@@ -92,10 +94,23 @@ class PayController extends Controller
         $totalBPJSKes = 0;
         $totalBPJSTK = 0;
         $totalPajak = 0;
+		$totalPajak12 = 0;
         $totalPajakPaid = 0;
         $totalTHP = 0;
         $totalTF1 = 0;
         $totalTF2 = 0;
+        $totalBPJSTKPrs = 0;
+        $totalBPJSTKKry = 0;
+        $totalPendBrutoPajak = 0;
+		$totalPendBrutoPajak12 = 0;
+        $totalBPJSKesPrs = 0;
+        $totalBPJSKesKry = 0;
+        $totalBPJSJHTPrs = 0;
+        $totalBPJSJHTKry = 0;
+        $totalBPJSJKK = 0;
+        $totalBPJSJKM = 0;
+        $totalBPJSJPPrs = 0;
+        $totalBPJSJPKry = 0;
         foreach($pcs as $p){
             foreach($thrs as $t){
                 if($p->id_kry == $t->id_kry){
@@ -110,8 +125,8 @@ class PayController extends Controller
 
             $p->thp = $p->gaji_total - $p->out_bpjskes - $p->out_bpjsjht - $p->out_bpjsjp;
 
-            $p->tf1 = $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa;
-            $p->tf2 = $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran - $p->out_bpjskes - $p->out_bpjsjht - $p->out_bpjsjp;
+            $p->tf1 = $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa - $p->out_lain;
+            $p->tf2 = $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_lain - $p->out_bpjskes - $p->out_bpjsjht - $p->out_bpjsjp;
             if($p->tf2 < 0){
                 $p->tf1 += $p->tf2;
                 $p->tf2 = 0;
@@ -123,6 +138,15 @@ class PayController extends Controller
             $totalTHP += $p->thp;
             $totalTF1 += $p->tf1;
             $totalTF2 += $p->tf2;
+            $totalPendBrutoPajak += $p->gaji_total + $p->in_bpjskes + $p->in_bpjsjkk + $p->in_bpjsjkm;
+            $totalBPJSKesPrs += $p->in_bpjskes;
+            $totalBPJSKesKry += $p->out_bpjskes;
+            $totalBPJSJHTPrs += $p->in_bpjsjht;
+            $totalBPJSJHTKry += $p->out_bpjsjht;
+            $totalBPJSJKK += $p->in_bpjsjkk;
+            $totalBPJSJKM += $p->in_bpjsjkm;
+            $totalBPJSJPPrs += $p->in_bpjsjp;
+            $totalBPJSJPKry += $p->out_bpjsjp;
 
             if($date->format('m') == 12){
                 $ypcs = DB::table($db.'_gajian')
@@ -140,14 +164,25 @@ class PayController extends Controller
                     ->get();
 
                 $p->pajak = $this->getPajak12($ypcs, $thrs);
+				$totalPendBrutoPajak12 += $p->pajak->bruto12;
             }
             else{
-                $p->pajak = $this->getPajak($p);
+                if($year >= 2024 && PPH_TER2024 == 1){
+                    $p->pajak = $this->getPajak2024($p);
+                }
+                else{
+                    $p->pajak = $this->getPajak($p);
+                }
             }
 
             $totalPajak += $p->pajak->pajak1;
+			$totalPajak12 += $p->pajak->pajak12;
+			
 
             $totalPajakPaid += $p->pph21_paid;
+
+            $totalBPJSTKPrs += $p->in_bpjsjkk + $p->in_bpjsjkm + $p->in_bpjsjp + $p->in_bpjsjkp + $p->in_bpjsjht;
+            $totalBPJSTKKry += $p->out_bpjsjp + $p->out_bpjsjht;
         }
         
         return view('pages.pay', [
@@ -161,11 +196,24 @@ class PayController extends Controller
             'total_bpjskes' => $totalBPJSKes,
             'total_bpjstk' => $totalBPJSTK,
             'total_pajak' => $totalPajak,
+			'total_pajak12' => $totalPajak12,
             'total_pajak_paid' => $totalPajakPaid,
             'total_thr' => $totalTHR,
             'total_thp' => $totalTHP,
             'total_tf1' => $totalTF1,
-            'total_tf2' => $totalTF2
+            'total_tf2' => $totalTF2,
+            'total_bpjs_tkprs' => $totalBPJSTKPrs,
+            'total_bpjs_tkkry' => $totalBPJSTKKry,
+            'total_pendbruto_pajak' => $totalPendBrutoPajak,
+			'total_pendbruto_pajak12' => $totalPendBrutoPajak12,
+            'total_bpjs_kesprs' => $totalBPJSKesPrs,
+            'total_bpjs_keskry' => $totalBPJSKesKry,
+            'total_bpjs_jhtprs' => $totalBPJSJHTPrs,
+            'total_bpjs_jhtkry' => $totalBPJSJHTKry,
+            'total_bpjs_jkk' => $totalBPJSJKK,
+            'total_bpjs_jkm' => $totalBPJSJKM,
+            'total_bpjs_jpprs' => $totalBPJSJPPrs,
+            'total_bpjs_jpkry' => $totalBPJSJPKry
         ]);
     }
 
@@ -183,6 +231,8 @@ class PayController extends Controller
         $end = $this->getEndDate($db, $date);
 
         $krys = DB::table($db.'_karyawan')
+                ->join($db.'_golongan', $db.'_golongan.id', '=', $db.'_karyawan.gol')
+                ->select($db.'_karyawan.*', $db.'_golongan.workday')
                 ->where('tgl_mulai', '<=', $end->toDateString())
                 ->where(function ($q) use ($start) {
                     $q->where('tgl_akhir', '>=', $start->toDateString())
@@ -294,6 +344,7 @@ class PayController extends Controller
             $pDaysTrial = $k->atts['trial'][11] + $k->atts['trial'][12] + $k->atts['trial'][13] + 
                         $k->atts['trial'][21] + $k->atts['trial'][22] + $k->atts['trial'][23] + 
                         $k->atts['trial'][24];
+            $npDays = $k->atts['regular'][31] + $k->atts['regular'][32] + $k->atts['regular'][33] + $k->atts['trial'][31] + $k->atts['trial'][32] + $k->atts['trial'][33];;
 
             if($k->pph_sts == 1){
                 $ptkp = PTKP_K;
@@ -308,31 +359,57 @@ class PayController extends Controller
                 $haveNPWP = 0;
             }
 
+            // untuk periode 2023 dan seterusnya, workday pakai parameter dari golongan
+            $workdaydiv = 21;
+            if(substr($per, 0, 4) >= 2023){
+                $workdaydiv = $k->workday;
+            }
+
+            // dd($workdaydiv);
+
+            // kalau baru masuk (gajian pertama)   
             if(Carbon::create($k->tgl_mulai)->diffInMonths($end) < 1){
-                if($pDaysTrial > 21){
-                    $pDaysTrial = 21;
-                }
-                $ingp = round($k->gp * $pDaysTrial / 21);
-                $inhonor = round($k->honor * $pDaysTrial / 21);
-                $int2jabatan = round($k->t2jabatan * $pDaysTrial / 21);
-                $int2masa = round($k->t2masa * $pDaysTrial / 21);
+				if($k->gol == 'KOM'){
+					$ingp = $k->gp;
+					$inhonor = $k->honor;
+					$int2jabatan = 0;
+					$int2masa = 0;
+				}
+				else{
+					if($pDaysTrial > $workdaydiv){
+						$pDaysTrial = $workdaydiv;
+					}
+					$ingp = round($k->gp * $pDaysTrial / $workdaydiv);
+					$inhonor = round($k->honor * $pDaysTrial / $workdaydiv);
+					$int2jabatan = round($k->t2jabatan * $pDaysTrial / $workdaydiv);
+					$int2masa = round($k->t2masa * $pDaysTrial / $workdaydiv);
+				}
             }
             else{
                 if($k->tgl_akhir != null){
                     // kalau resign dan tgl resign ada dalam periode
                     $resignDate = Carbon::create($k->tgl_akhir);
                     if($resignDate->gt($start) && $resignDate->lt($end)){
-                        $ingp = round($k->gp * $pDays / 21);
-                        $inhonor =  round($k->honor * $pDays / 21);
-                        $int2jabatan =  round($k->t2jabatan * $pDays / 21);
-                        $int2masa =  round($k->t2masa * $pDays / 21);
+                        $ingp = round($k->gp * $pDays / $workdaydiv);
+                        $inhonor =  round($k->honor * $pDays / $workdaydiv);
+                        $int2jabatan =  round($k->t2jabatan * $pDays / $workdaydiv);
+                        $int2masa =  round($k->t2masa * $pDays / $workdaydiv);
                     }
                 }
                 else{
-                    $ingp = $k->gp;
-                    $inhonor = $k->honor;
-                    $int2jabatan = $k->t2jabatan;
-                    $int2masa = $k->t2masa;
+                    // per 2023 gp honor jabatan masa dipotong 1/21 atau 1/25 setiap hari tidak hadir
+                    if($k->gol == 'KOM'){
+                        $ingp = $k->gp;
+                        $inhonor = $k->honor;
+                        $int2jabatan = $k->t2jabatan;
+                        $int2masa = $k->t2masa;
+                    }
+                    else{
+                        $ingp = round($k->gp * ($workdaydiv - $npDays) / $workdaydiv);
+                        $inhonor = round($k->honor * ($workdaydiv - $npDays) / $workdaydiv);
+                        $int2jabatan = round($k->t2jabatan * ($workdaydiv - $npDays) / $workdaydiv);
+                        $int2masa = round($k->t2masa * ($workdaydiv - $npDays) / $workdaydiv);
+                    }
                 }
             }
 
@@ -348,6 +425,18 @@ class PayController extends Controller
                 'in_t3kehadiran' => $k->t3kehadiran * $pDays,
                 'pph21_npwp' => $haveNPWP,
                 'pph21_ptkp' => $ptkp,
+				'param_gp' => $k->gp,
+                'param_honor' => $k->honor,
+                'param_t2jabatan' => $k->t2jabatan,
+                'param_t2masa' => $k->t2masa,
+                'param_t3kerapian' => $k->t3kerapian,
+                'param_t3transport' => $k->t3transport,
+                'param_t3kehadiran' => $k->t3kehadiran,
+                'param_bpjskes' => $k->bpjs_kes,
+                'param_bpjstk' => $k->bpjs_tk,
+                'param_basebpjskes' => $k->base_bpjskes,
+                'param_basebpjstk' => $k->base_bpjstk,
+                'param_gol' => $k->gol
             );
 
             array_push($pcs, $pc);
@@ -500,7 +589,12 @@ class PayController extends Controller
                 $p->pajak = $this->getPajak12($ypcs, $thrs);
             }
             else{
-                $p->pajak = $this->getPajak($p);
+                if($date->format('Y') >= 2024 && PPH_TER2024 == 1){
+                    $p->pajak = $this->getPajak2024($p);
+                }
+                else{
+                    $p->pajak = $this->getPajak($p);
+                }
             }
         }
 
@@ -537,6 +631,8 @@ class PayController extends Controller
         $tglhr = Carbon::create($r->input('tglhr'));
 
         $krys = DB::table($db.'_karyawan')
+                ->join($db.'_golongan', $db.'_golongan.id', '=', $db.'_karyawan.gol')
+                ->select($db.'_karyawan.*', $db.'_golongan.workday')
                 ->where('tgl_mulai', '<=', $tglhr->toDateString())
                 ->where(function ($q) use ($tglhr) {
                     $q->where('tgl_akhir', '>=', $tglhr->toDateString())
@@ -547,7 +643,7 @@ class PayController extends Controller
 
         $thrs = array();
         foreach($krys as $k){
-            $base = $k->gp + $k->honor + $k->t2jabatan + $k->t2masa + AVG_WORK_DAYS * ($k->t3kerapian + $k->t3transport + $k->t3kehadiran);
+            $base = $k->gp + $k->honor + $k->t2jabatan + $k->t2masa + $k->workday * ($k->t3kerapian + $k->t3transport + $k->t3kehadiran);
 
             $tglMulai = Carbon::create($k->tgl_mulai);
             $lamaKerja = $tglMulai->diffInMonths($tglhr);
@@ -718,7 +814,7 @@ class PayController extends Controller
             foreach($pcs as $p) {
                 $masa = ltrim(substr($p->per, 4), '0');
                 $tahun = substr($p->per, 0, 4);
-                $bruto = $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa + $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_bpjskes + $p->in_bpjsjkk + $p->in_bpjsjkm;
+                $bruto = $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa + $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_bpjskes + $p->in_bpjsjkk + $p->in_bpjsjkm + $p->in_lain - $p->out_lain;
 
                 foreach($thrs as $t){
                     if($t->id_kry == $p->id_kry){
@@ -730,6 +826,294 @@ class PayController extends Controller
                     // fputcsv($file, array($masa, $tahun, 0, sprintf('%015d', $p->npwp), $p->nama, '21-100-01', $bruto, $p->pph21_paid), ';');
                     fputs($file, implode(';', array($masa, $tahun, 0, sprintf('%015d', $p->npwp), $p->nama, '21-100-01', $bruto, $p->pph21_paid, ''))."\n");
                 }
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    public function getRekapCsv(Request $r){
+        $db = explode('.', Route::currentRouteName())[0];
+
+        $validated = $r->validate([
+            'per' => 'required|digits:4|integer'
+        ]);
+
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=".$db."-rekappajak -".$r->input('per').".csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('idkry', 'nama', 'totalgaji', 'thr', 'jkes-prs', 'jkk-prs', 'jkm-prs', 'totalbruto', 'jht-kry', 'jp-kry', 'bjabatan', 'totalnet', 'ptkp', 'pkp', 'pph21', 'sudahbayar');
+
+        $pcs = DB::table($db.'_gajian')
+                ->join($db.'_karyawan', $db.'_karyawan.id', '=', $db.'_gajian.id_kry')
+                ->select($db.'_karyawan.nama', $db.'_gajian.*')
+                ->where('per', 'LIKE', $r->input('per').'%' )
+                ->get();
+
+        $thrs = DB::table($db.'_thr')
+                ->where('per', 'LIKE', $r->input('per').'%')
+                ->get();
+
+        $datas = array();
+        foreach($pcs as $p) {
+            $i = array_search($p->id_kry, array_column($datas, 'id_kry'));
+            if($i === false){
+                $datas[$p->id_kry] = array(
+                    'id_kry' => $p->id_kry,
+                    'nama' => $p->nama,
+                    'totalgaji' => 0, 
+                    'thr' => 0, 
+                    'jkes-prs' => 0, 
+                    'jkk-prs' => 0, 
+                    'jkm-prs' => 0, 
+                    'totalbruto' => 0, 
+                    'jht-kry' => 0, 
+                    'jp-kry' => 0, 
+                    'bjabatan' => 0, 
+                    'totalnet' => 0, 
+                    'ptkp' => $p->pph21_ptkp, 
+                    'pkp' => 0, 
+                    'pph21' => 0, 
+                    'sudahbayar' => 0
+                );
+            }
+            
+            $datas[$p->id_kry]['totalgaji'] += $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa + $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_lain - $p->out_lain;
+            $datas[$p->id_kry]['jkes-prs'] += $p->in_bpjskes;
+            $datas[$p->id_kry]['jkk-prs'] += $p->in_bpjsjkk;
+            $datas[$p->id_kry]['jkm-prs'] += $p->in_bpjsjkm;
+            $datas[$p->id_kry]['jht-kry'] += $p->out_bpjsjht;
+            $datas[$p->id_kry]['jp-kry'] += $p->out_bpjsjp;
+            $datas[$p->id_kry]['sudahbayar'] += $p->pph21_paid;
+        }
+
+        foreach($datas as &$d){
+            foreach($thrs as $t){
+                if($t->id_kry == $d['id_kry']){
+                    $d['thr'] += $t->thr;
+                }
+            }
+
+            $d['totalbruto'] = $d['totalgaji'] + $d['jkes-prs'] + $d['jkk-prs'] + $d['jkm-prs'] + $d['thr'];
+            $d['bjabatan'] = $d['totalbruto'] * 0.05;
+            if($d['bjabatan'] > MAX_B_JABATAN){
+                $d['bjabatan'] = MAX_B_JABATAN;
+            }
+            $d['totalnet'] = $d['totalbruto'] - $d['jht-kry'] - $d['jp-kry'] - $d['bjabatan'];
+            $d['pkp'] = $this->floor1000($d['totalnet'] - $d['ptkp']);
+            if($d['pkp'] < 0){
+                $d['pkp'] = 0;
+            }
+            $d['pph21'] = $this->calcPajak($d['pkp'], $r->input('per'));
+            // dd($d);
+        }
+
+        $callback = function() use ($columns, $datas)
+        {
+            $file = fopen('php://output', 'w');
+            // fputcsv($file, $columns, ';');
+            fputs($file, implode(';', $columns)."\n");
+
+            foreach($datas as $d){
+                fputs($file, implode(';', $d)."\n");
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    public function getPajakCsvFinal(Request $r){
+        $db = explode('.', Route::currentRouteName())[0];
+        $idpemotongsgn = 3;
+        $idpemotongscb = 3;
+        $idpemotong = 0;
+        if($db == 'sgn'){
+            $idpemotong = $idpemotongsgn;
+        }
+        else if($db == 'scb'){
+            $idpemotong = $idpemotongscb;
+        }
+
+        $validated = $r->validate([
+            'per' => 'required|digits:4|integer'
+        ]);
+
+        $date = Carbon::createFromDate($validated['per'].'-01-01');
+
+        $headers = array(
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=".$db."-rekappajakfinal -".$r->input('per').".csv",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        );
+
+        $columns = array('Masa Pajak', 'Tahun Pajak', 'Pembetulan', 'Nomor Bukti Potong', 'Masa Perolehan', 'Masa Perolehan', 'NPWP', 'NIK', 'Nama', 'Alamat', 'Jenis Kelamin', 'Status PTKP', 'Jumlah Tanggungan', 'Nama Jabatan', 'WP Luar Negeri', 'Kode Negara', 'Kode Pajak', 'Jumlah 1', 'Jumlah 2', 'Jumlah 3', 'Jumlah 4', 'Jumlah 5', 'Jumlah 6', 'Jumlah 7', 'Jumlah 8', 'Jumlah 9', 'Jumlah 10', 'Jumlah 11', 'Jumlah 12', 'Jumlah 13', 'Jumlah 14', 'Jumlah 15', 'Jumlah 16', 'Jumlah 17', 'Jumlah 18', 'Jumlah 19', 'Jumlah 20', 'Status Pindah', 'NPWP Pemotong', 'Nama Pemotong', 'Tanggal Bukti Potong');
+
+        $krys = DB::table($db.'_karyawan')
+                ->where('tgl_mulai', '<=', $date->endOfYear()->toDateString())
+                ->where(function ($q) use ($date) {
+                    $q->where('tgl_akhir', '>=', $date->startOfYear()->toDateString())
+                        ->orWhere('tgl_akhir', '=', null);
+                })
+                ->orderBy('id_prefix')
+                ->get();
+
+        $pcs = DB::table($db.'_gajian')
+                ->join($db.'_karyawan', $db.'_karyawan.id', '=', $db.'_gajian.id_kry')
+                ->select($db.'_karyawan.nama', $db.'_gajian.*')
+                ->where('per', 'LIKE', $r->input('per').'%' )
+                ->get();
+
+        $thrs = DB::table($db.'_thr')
+                ->where('per', 'LIKE', $r->input('per').'%')
+                ->get();
+
+        $i = $krys->search(function($k) use ($idpemotong) {
+            return $k->id === $idpemotong;
+        });
+        $namapemotong = $krys[$i]->nama;
+        $npwppemotong = $krys[$i]->npwp;
+
+        $datas = array();
+        $counter = 1;
+        foreach($krys as $k){
+            // dd($k);
+            $id = $k->id;
+            $i = array_search($id, array_column($datas, 'id_kry'));
+            if($i === false){
+                $datas[$id] = array(
+                    'masapajak' => 12,
+                    'tahunpajak' => $date->format('Y'),
+                    'pembetulan' => 0, 
+                    'nomorbupot' => '1.1-12.'.$date->format('y').'-'.sprintf('%07d', $counter), 
+                    'masaperolehan1' => 0, 
+                    'masaperolehan2' => 0, 
+                    'npwp' => '="'.$k->npwp.'"',
+                    'nik' => '="'.$k->nik.'"', 
+                    'nama' => $k->nama, 
+                    'alamat' => $k->alamat, 
+                    'jk' => ($k->jenis_kelamin == 0) ? 'F' : 'M', 
+                    'statusptkp' => ($k->pph_sts == 0) ? 'TK' : 'K', 
+                    'tanggungan' => $k->pph_tg, 
+                    'jabatan' => $k->jabatan, 
+                    'wpluarnegeri' => 'N', 
+                    'kodenegara' => '',
+                    'kodepajak' => '21-100-01',
+                    'jumlah1' => 0,
+                    'jumlah2' => 0,
+                    'jumlah3' => 0,
+                    'jumlah4' => 0,
+                    'jumlah5' => 0,
+                    'jumlah6' => 0,
+                    'jumlah7' => 0,
+                    'jumlah8' => 0,
+                    'jumlah9' => 0,
+                    'jumlah10' => 0,
+                    'jumlah11' => 0,
+                    'jumlah12' => 0,
+                    'jumlah13' => 0,
+                    'jumlah14' => 0,
+                    'jumlah15' => 0,
+                    'jumlah16' => 0,
+                    'jumlah17' => 0,
+                    'jumlah18' => 0,
+                    'jumlah19' => 0,
+                    'jumlah20' => 0,
+                    'statuspindah' => '',
+                    'npwppemotong' => $npwppemotong,
+                    'namapemotong' => $namapemotong,
+                    'tglbupot' => $date->endOfYear()->format('d/m/y')
+                );
+                $mulaikerja = Carbon::createFromDate($k->tgl_mulai);
+                if($mulaikerja->lt($date->startOfYear())){
+                    $datas[$id]['masaperolehan1'] = 1;
+                }
+                else{
+                    $datas[$id]['masaperolehan1'] = $mulaikerja->format('n');
+                }
+                if($k->tgl_akhir == null){
+                    $datas[$id]['masaperolehan2'] = 12;
+                }
+                else{
+                    $akhirkerja = Carbon::createFromDate($k->tgl_akhir);
+                    if($akhirkerja->gt($date->endOfYear())){
+                        $datas[$id]['masaperolehan2'] = 12;
+                    }
+                    else{
+                        $datas[$id]['masaperolehan2'] = $akhirkerja->format('n');
+                    }
+                }
+                $counter++;
+            }
+        }
+        // dd($datas);
+        foreach($pcs as $p) {
+            $datas[$p->id_kry]['jumlah1'] += $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa + $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_lain - $p->out_lain + $p->in_bpjskes + $p->in_bpjsjkk + $p->in_bpjsjkm;
+            $datas[$p->id_kry]['jumlah10'] += $p->out_bpjsjp + $p->out_bpjsjht;
+            $datas[$p->id_kry]['jumlah15'] = $p->pph21_ptkp;
+            $datas[$p->id_kry]['jumlah20'] += $p->pph21_paid;
+        }
+
+        foreach($thrs as $t){
+            $datas[$t->id_kry]['jumlah7'] += $t->thr;
+        }
+
+        // dd($datas);
+
+        foreach($datas as &$d){
+            // total pend bruto
+            $d['jumlah8'] = $d['jumlah1'] + $d['jumlah7'];
+
+            // total b jabatan
+            $d['jumlah9'] = ceil($d['jumlah8'] * 0.05);
+            if($d['jumlah9'] > MAX_B_JABATAN){
+                $d['jumlah9'] = MAX_B_JABATAN;
+            }
+
+            // total pengurang
+            $d['jumlah11'] = $d['jumlah9'] + $d['jumlah10'];
+
+            // bruto - pengurang
+            $d['jumlah12'] = $d['jumlah8'] - $d['jumlah11'];
+
+            // total pend nett
+            $d['jumlah14'] = $d['jumlah12'] - $d['jumlah13'];
+
+            // total pkp setahun
+            $d['jumlah16'] = $this->floor1000($d['jumlah14'] - $d['jumlah15']);
+            if($d['jumlah16'] < 0){
+                $d['jumlah16'] = 0;
+            }
+
+            // pph21 setahun
+            $d['jumlah17'] = $this->calcPajak($d['jumlah16'], $validated['per']);
+            if(str_contains($d['npwp'], '00000000')){
+                $d['jumlah17'] = ceil($d['jumlah17'] * 1.2);
+            }
+
+            // pph21 kantor lain
+            $d['jumlah18'] = 0;
+
+            // pph21 hanya kantor ini
+            $d['jumlah19'] = $d['jumlah17'] - $d['jumlah18'];
+        }
+
+        $callback = function() use ($columns, $datas)
+        {
+            $file = fopen('php://output', 'w');
+            // fputcsv($file, $columns, ';');
+            fputs($file, implode(';', $columns)."\n");
+
+            foreach($datas as $d){
+                fputs($file, implode(';', $d)."\n");
             }
             fclose($file);
         };
@@ -778,7 +1162,7 @@ class PayController extends Controller
 
         $p->in = $p->in_gp + $p->in_honor + $p->in_t2jabatan + $p->in_t2masa + $p->in_t3kerapian + $p->in_t3transport + $p->in_t3kehadiran + $p->in_bpjskes + $p->in_bpjsjht + $p->in_bpjsjkk + $p->in_bpjsjkm + $p->in_bpjsjkp + $p->in_bpjsjp + $p->in_lain;
 
-        $p->out = $p->in_bpjskes + $p->in_bpjsjht + $p->in_bpjsjkk + $p->in_bpjsjkm + $p->in_bpjsjkp + $p->in_bpjsjp + $p->in_lain + $p->out_bpjskes + $p->out_bpjsjht + $p->out_bpjsjp;
+        $p->out = $p->in_bpjskes + $p->in_bpjsjht + $p->in_bpjsjkk + $p->in_bpjsjkm + $p->in_bpjsjkp + $p->in_bpjsjp + $p->out_lain + $p->out_bpjskes + $p->out_bpjsjht + $p->out_bpjsjp;
 
         // dd($p);
 
@@ -843,7 +1227,7 @@ class PayController extends Controller
                     'weekdays' => $weekdays
                 ])->setPaper('A5', 'landscape');  
                 
-        $filename = $p->per . '-' . strtoupper(str_replace(' ', '-', $p->nama));
+        $filename = $p->per . '-' . strtoupper(str_replace(' ', '-', $p->nama) . '.pdf');
         return $pdf->stream($filename);
     }
 
@@ -913,7 +1297,7 @@ class PayController extends Controller
     private function getPajak($d){
         // $d = select join karyawan dan gajian
         $pajak = (object)array(
-            'bruto1' => $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm,
+            'bruto1' => $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm + $d->in_lain - $d->out_lain,
             'net12' => 0,
             'ptkp' => 0,
             'pkp' => 0,
@@ -979,6 +1363,100 @@ class PayController extends Controller
         return $pajak;
     }
 
+    private function getPajak2024($d){
+        // $d = select join karyawan dan gajian
+        $pajak = (object)array(
+            'bruto1' => $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm + $d->in_lain - $d->out_lain,
+            'net12' => 0,
+            'ptkp' => 0,
+            'pkp' => 0,
+            'pajak12' => 0,
+            'pajak1' => 0
+        );
+
+        $date = Carbon::createFromDate(substr($d->per, 0, 4), substr($d->per, 4, 2), 1);
+        $tglMulai = Carbon::create($d->tgl_mulai);
+
+        if($tglMulai->gt($date->copy()->subYear()->month(12)->endOfMonth()->endOfDay())){
+            $masaKerja = 13 - $tglMulai->format('n');
+        }
+        else{
+            $masaKerja = 12;
+        }
+
+        $bjabatan = $pajak->bruto1 * $masaKerja * 0.05;
+        if($bjabatan > MAX_B_JABATAN){
+            $bjabatan = MAX_B_JABATAN;
+        }
+
+        $pajak->net12 = ($pajak->bruto1 - $d->out_bpjsjht - $d->out_bpjsjp) * $masaKerja - $bjabatan;
+
+        $pajak->ptkp = $d->pph21_ptkp;
+
+        $pajak->pkp = $this->floor1000($pajak->net12 - $pajak->ptkp);
+        if($pajak->pkp < 0){
+            $pajak->pkp = 0;
+        }
+
+        $pajak->pajak12 = $this->calcPajak($pajak->pkp, $date->format('Y'));
+
+        if(!$d->pph21_npwp){
+            $pajak->pajak12 = $pajak->pajak12 * 120 / 100;
+        }
+
+        // perhitungan yg beda cuma pajak1
+        // $pajak->pajak1 = round($pajak->pajak12 / 12);
+
+        // perhitungan pajak1 sesuai aturan TER 2024
+        $pph_ptkp = DB::table('pph_ptkp')
+                        ->where('pph_sts', '=', $d->pph_sts)
+                        ->where('pph_tg', '=', $d->pph_tg)
+                        ->first();
+        $pph_ter_tarif = DB::table('pph_ter_tarif')
+                            ->where('id_ter', '=', $pph_ptkp->id_ter)
+                            ->where('bruto1_bawah', '<=', $pajak->bruto1)
+                            ->where('bruto1_atas', '>=', $pajak->bruto1)
+                            ->first();
+
+        $pajak->pajak1 = round($pajak->bruto1 * $pph_ter_tarif->tarif);
+        if(!$d->pph21_npwp){
+            $pajak->pajak1 = $pajak->pajak1 * 120 / 100;
+        }
+
+        if(array_key_exists('thr', (array)$d)){
+            $brutoT = $pajak->bruto1 * $masaKerja + $d->thr;
+            $bjabatanT = $brutoT * 0.05;
+            if($bjabatanT > MAX_B_JABATAN){
+                $bjabatanT = MAX_B_JABATAN;
+            }
+            $netT = $brutoT - $masaKerja * ($d->out_bpjsjht + $d->out_bpjsjp) - $bjabatanT;
+            $pkpT = $this->floor1000($netT - $pajak->ptkp);
+            if($pkpT < 0){
+                $pkpT = 0;
+            }
+            $pphT = $this->calcPajak($pkpT, $date->format('Y'));
+
+            if(!$d->pph21_npwp){
+                $pphT = $pphT * 120 / 100;
+            }
+
+            $pajak->bruto1 = $pajak->bruto1 + $d->thr;
+
+            $pph_ter_tarif_thr = DB::table('pph_ter_tarif')
+                            ->where('id_ter', '=', $pph_ptkp->id_ter)
+                            ->where('bruto1_bawah', '<=', $pajak->bruto1)
+                            ->where('bruto1_atas', '>=', $pajak->bruto1)
+                            ->first();
+
+            $pajak->pajak1 = $pajak->bruto1 * $pph_ter_tarif_thr->tarif;
+            $pajak->pajak12 = $pphT;
+            $pajak->net12 = $netT;
+            $pajak->pkp = $pkpT;
+        }
+
+        return $pajak;
+    }
+
     private function getPajak12($ds, $thrs){
         // $ds = select join karyawan dan gajian, spesifik id_kry per Y01-Y12
         $pajak = (object)array(
@@ -1000,12 +1478,12 @@ class PayController extends Controller
         $outJP12 = 0;
         $haveNPWP = 1;
         foreach($ds as $d){
-            $pajak->bruto12 += $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm;
+            $pajak->bruto12 += $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm + $d->in_lain - $d->out_lain;
             $outJHT12 += $d->out_bpjsjht;
             $outJP12 += $d->out_bpjsjp;
 
             if($d->per == $date->format('Y12')){
-                $pajak->bruto1 = $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm;
+                $pajak->bruto1 = $d->in_gp + $d->in_honor + $d->in_t2jabatan + $d->in_t2masa + $d->in_t3kerapian + $d->in_t3transport + $d->in_t3kehadiran + $d->in_bpjskes + $d->in_bpjsjkk + $d->in_bpjsjkm + $d->in_lain - $d->out_lain;
                 $pajak->ptkp = $d->pph21_ptkp;
                 $haveNPWP = $d->pph21_npwp;
             }

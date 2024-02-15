@@ -39,12 +39,10 @@
                                         value="{{ old('idKry') }}"
                                         disabled>
                                     <div class="input-group-append border-0">
-                                        <div class="input-group-btn p-0">
-                                            <button class="btn m-0" id="searchKryBtn" type="button" data-toggle="modal" data-target="#searchKryModal
+                                        <button class="btn btn-sm m-0" id="searchKryBtn" type="button" data-toggle="modal" data-target="#searchKryModal
                                             " disabled>
                                                 <i class="tim-icons icon-zoom-split"></i>
                                             </button>
-                                        </div>
                                     </div>
                                     @include('alerts.feedback', ['field' => 'id'])
                                 </div>
@@ -155,6 +153,7 @@
                                     @include('alerts.feedback', ['field' => 'tglakhir'])
                                 </div>
                             </div>
+                            <div class="w-100"></div>
                             <div class="col-md-3">
                                 <label>{{ _('Status Kerja') }}</label>
                                 <div class="form-group {{ $errors->has('stskerja') ? ' has-danger' : '' }}">
@@ -165,6 +164,17 @@
                                         <option value="3">3 - Nonaktif</option>
                                     </select>
                                     @include('alerts.feedback', ['field' => 'stskerja'])
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label>{{ _('Golongan') }}</label>
+                                <div class="form-group {{ $errors->has('golongan') ? ' has-danger' : '' }}">
+                                    <select class="form-control" name="golongan">
+                                        @foreach($golongan as $g)
+                                        <option value="{{ $g->id }}">{{ $g->golongan . ' (' . $g->workday .' hari)'}}</option>
+                                        @endforeach
+                                    </select>
+                                    @include('alerts.feedback', ['field' => 'golongan'])
                                 </div>
                             </div>
                         </div>
@@ -416,11 +426,9 @@
                             <div class="input-group w-100">
                                 <input type="text" name="id" class="form-control" placeholder="{{ _('Search') }}">
                                 <div class="input-group-append border-0">
-                                    <div class="input-group-btn p-0">
-                                        <button class="btn m-0" type="button">
-                                            <i class="tim-icons icon-zoom-split"></i>
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-sm m-0" type="button">
+                                        <i class="tim-icons icon-zoom-split"></i>
+                                    </button>
                                 </div>
                                 @include('alerts.feedback', ['field' => 'id'])
                             </div>
@@ -604,6 +612,7 @@
             $(formID + " input[name='tglmulai']").val(k.tgl_mulai);
             $(formID + " input[name='tglakhir']").val(k.tgl_akhir);
             $(formID + " select[name='stskerja']").val([k.sts_kerja]).change();
+            $(formID + " select[name='golongan']").val([k.gol]).change();
             
             $(formID + " input:text[name='gp']").val(k.gp);
             $(formID + " input:text[name='t2masa']").val(k.t2masa);
@@ -625,6 +634,6 @@
             var txt = document.createElement("textarea");
             txt.innerHTML = html;
             return txt.value;
-}
+        }
     </script>
 @endpush

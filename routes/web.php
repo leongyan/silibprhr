@@ -63,6 +63,12 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('kehadiran/getcsv', 'KehadiranController@exportCSV');
 	    Route::post('kehadiran/import', 'KehadiranController@import');
 
+	    Route::get('cuti', ['as' => 'cuti', 'uses' => 'CutiController@index']);
+	    Route::get('cuti/{year}', 'CutiController@index');
+	    Route::post('cuti/tambah', 'CutiController@tambah');
+	    Route::post('cuti/edit', 'CutiController@edit');
+	    Route::post('cuti/hapus', 'CutiController@hapus');
+
 	    Route::get('gajian', ['as' => 'gajian', 'uses' => 'PayController@index']);
 	    Route::get('gajian/{year}/{month}', 'PayController@index');
 	    Route::post('gajian/hitung/gaji', 'PayController@hitungGaji');
@@ -75,6 +81,8 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('gajian/print', 'PayController@printSlip');
 	    Route::post('gajian/thr/print', 'PayController@printThr');
 	    Route::post('gajian/pajak/csv', 'PayController@getPajakCsv');
+	    Route::post('gajian/pajak/csvfinal', 'PayController@getPajakCsvFinal');
+	    Route::post('gajian/rekap/csv', 'PayController@getRekapCsv');
 
 	    Route::get('hrlibur', ['as' => 'hrlibur', 'uses' => 'HariLiburController@index']);
 	    Route::get('hrlibur/{year}', 'HariLiburController@index');
@@ -82,6 +90,12 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('hrlibur/edit/var', 'HariLiburController@editVar');
 	    Route::post('hrlibur/tambah', 'HariLiburController@tambah');
 	    Route::post('hrlibur/hapus', 'HariLiburController@hapus');
+
+	    Route::get('report', ['as' => 'report', 'uses' => 'ReportController@index']);
+	    Route::get('report/rekapkenaikangajiall', 'ReportController@rekapKenaikanGajiAll');
+	    Route::post('report/rekapkenaikangajiall/print', 'ReportController@rekapKenaikanGajiAllPrint');
+	    Route::get('report/rekapkenaikangaji', 'ReportController@rekapKenaikanGaji');
+	    Route::post('report/rekapkenaikangaji/print', 'ReportController@rekapKenaikanGajiPrint');
 	});
 
 	Route::group(['prefix'=>'scb','as'=>'scb.'], function(){
@@ -102,6 +116,13 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('kehadiran/getcsv', 'KehadiranController@exportCSV');
 	    Route::post('kehadiran/import', 'KehadiranController@import');
 
+	    Route::get('cuti', ['as' => 'cuti', 'uses' => 'CutiController@index']);
+	    Route::get('cuti/{year}', 'CutiController@index');
+	    Route::post('cuti/tambah', 'CutiController@tambah');
+	    Route::post('cuti/edit', 'CutiController@edit');
+	    Route::post('cuti/hapus', 'CutiController@hapus');
+
+
 	    Route::get('gajian', ['as' => 'gajian', 'uses' => 'PayController@index']);
 	    Route::get('gajian/{year}/{month}', 'PayController@index');
 	    Route::post('gajian/hitung/gaji', 'PayController@hitungGaji');
@@ -114,6 +135,8 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('gajian/print', 'PayController@printSlip');
 	    Route::post('gajian/thr/print', 'PayController@printThr');
 	    Route::post('gajian/pajak/csv', 'PayController@getPajakCsv');
+	    Route::post('gajian/pajak/csvfinal', 'PayController@getPajakCsvFinal');
+	    Route::post('gajian/rekap/csv', 'PayController@getRekapCsv');
 
 	    Route::get('hrlibur', ['as' => 'hrlibur', 'uses' => 'HariLiburController@index']);
 	    Route::get('hrlibur/{year}', 'HariLiburController@index');
@@ -121,5 +144,11 @@ Route::group(['middleware' => 'auth'], function () {
 	    Route::post('hrlibur/edit/var', 'HariLiburController@editVar');
 	    Route::post('hrlibur/tambah', 'HariLiburController@tambah');
 	    Route::post('hrlibur/hapus', 'HariLiburController@hapus');
+
+	    Route::get('report', ['as' => 'report', 'uses' => 'ReportController@index']);
+	    Route::get('report/rekapkenaikangajiall', 'ReportController@rekapKenaikanGajiAll');
+	    Route::post('report/rekapkenaikangajiall/print', 'ReportController@rekapKenaikanGajiAllPrint');
+	    Route::get('report/rekapkenaikangaji', 'ReportController@rekapKenaikanGaji');
+	    Route::post('report/rekapkenaikangaji/print', 'ReportController@rekapKenaikanGajiPrint');
 	});
 });

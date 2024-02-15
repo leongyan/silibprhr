@@ -25,15 +25,19 @@ class KryController extends Controller
                 ->orderBy('id_prefix')
                 ->get();
 
+        $golongan = DB::table($db.'_golongan')
+                    ->get();
+
         foreach ($kry as $k){
             $k->id_kry = $k->id_prefix.sprintf('%03d', $k->id);
         }
 
-        // dd($kry);
+        // dd($golongan);
 
         return view('pages.kry', [
             'db' => $db,
-            'kry' => $kry
+            'kry' => $kry,
+            'golongan' => $golongan
         ]);
     }
 
@@ -48,6 +52,9 @@ class KryController extends Controller
                 ->orderBy('sts_kerja')
                 ->orderBy('id_prefix')
                 ->get();
+
+        $golongan = DB::table($db.'_golongan')
+                    ->get();
 
         $selected = array();
         foreach ($kry as $k){
@@ -71,7 +78,8 @@ class KryController extends Controller
             'db' => $db,
             'kry' => $kry,
             'action' => $action,
-            'selected' => $s
+            'selected' => $s,
+            'golongan' => $golongan
         ]);
     }
 
@@ -136,6 +144,7 @@ class KryController extends Controller
             'tgl_mulai' => $r->input('tglmulai'),
             'tgl_akhir' => $r->input('tglakhir'),
             'sts_kerja' => $r->input('stskerja'),
+            'gol' => $r->input('golongan'),
             'gp' => $r->input('gp') ?? 0,
             't2masa' => $r->input('t2masa') ?? 0,
             't2jabatan' => $r->input('t2jabatan') ?? 0,
@@ -194,6 +203,7 @@ class KryController extends Controller
                 'tgl_mulai' => $r->input('tglmulai'),
                 'tgl_akhir' => $r->input('tglakhir'),
                 'sts_kerja' => $r->input('stskerja'),
+                'gol' => $r->input('golongan'),
                 'gp' => $r->input('gp') ?? 0,
                 't2masa' => $r->input('t2masa') ?? 0,
                 't2jabatan' => $r->input('t2jabatan') ?? 0,

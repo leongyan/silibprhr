@@ -2,8 +2,8 @@
 
 @section('content')
     <div class="col-md-10 text-center ml-auto mr-auto">
-        <h2 class="mb-1">Human Resources Development</h3>
-        <h3 class="mb-3">MANAGEMENT SYSTEM</h4>
+        <h2 class="mb-1 text-primary font-weight-bold">SILI CORP BANK</h2>
+        <h3 class="mb-3">HR Management System</h3>
     </div>
     <div class="col-lg-4 col-md-6 ml-auto mr-auto">
         <form class="form" method="post" action="{{ route('login') }}">

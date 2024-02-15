@@ -13,7 +13,7 @@
                             <div class="float-right form-inline">
                                 <form action="hrlibur">
                                     <select class="form-control" name="year">
-                                        @for($i = date('Y'); $i >= 2020; $i--)
+                                        @for($i = date('Y') + 1; $i >= 2020; $i--)
                                         <option value="{{ $i }}" {{ $i === (int)$date->format('Y') ? "selected" : "" }}>{{ $i }}</option>
                                         @endfor
                                     </select>

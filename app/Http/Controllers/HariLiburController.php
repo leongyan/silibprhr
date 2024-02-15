@@ -46,7 +46,7 @@ class HariLiburController extends Controller
         $db = explode('.', Route::currentRouteName())[0];
 
         $validated = $r->validate([
-            'year' => 'required|digits:4|integer|min:2020|max:'.(date('Y'))
+            'year' => 'required|digits:4|integer|min:2020|max:'.(date('Y') + 1)
         ]);
 
         $year = $r->input('year');

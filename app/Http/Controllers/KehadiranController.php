@@ -236,14 +236,17 @@ class KehadiranController extends Controller
                                     $att = 33;
                                     break;
                                 default:
+									$att = null;
                                     break;
                             }
-                            array_push($atts, array(
-                                'id_kry' => $idKry,
-                                'per' => $per,
-                                'tgl' => $dates[$i - 2]->toDateString(),
-                                'att' => $att
-                            ));
+                            if($att != null){
+                                array_push($atts, array(
+                                    'id_kry' => $idKry,
+                                    'per' => $per,
+                                    'tgl' => $dates[$i - 2]->toDateString(),
+                                    'att' => $att
+                                ));
+                            }
                         }
                     }
                 }

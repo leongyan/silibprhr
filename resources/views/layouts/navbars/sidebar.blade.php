@@ -11,7 +11,7 @@
                     <p>{{ _('Dashboard') }}</p>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a data-toggle="collapse" href="#sgn-menus" 
                     aria-expanded="{{ str_contains($pageSlug, 'sgn') ? 'true' : 'false' }}">
                     <i class="fab fa-laravel" ></i>
@@ -27,16 +27,22 @@
                                 <p>{{ _('Karyawan') }}</p>
                             </a>
                         </li>
-                        <li @if ($pageSlug == 'sgn-pk') class="active " @endif>
+                        <!-- <li @if ($pageSlug == 'sgn-pk') class="active " @endif>
                             <a href="{{ route('sgn.pk')  }}">
                                 <i class="tim-icons icon-link-72"></i>
                                 <p>{{ _('Perjanjian Kerja') }}</p>
                             </a>
-                        </li>
+                        </li> -->
                         <li @if ($pageSlug == 'sgn-kehadiran') class="active " @endif>
                             <a href="{{ route('sgn.kehadiran')  }}">
                                 <i class="tim-icons icon-calendar-60"></i>
                                 <p>{{ _('Kehadiran') }}</p>
+                            </a>
+                        </li>
+                        <li @if ($pageSlug == 'sgn-cuti') class="active " @endif>
+                            <a href="{{ route('sgn.cuti')  }}">
+                                <i class="tim-icons icon-spaceship"></i>
+                                <p>{{ _('Cuti') }}</p>
                             </a>
                         </li>
                         <li @if ($pageSlug == 'sgn-gajian') class="active " @endif>
@@ -51,15 +57,15 @@
                                 <p>{{ _('Hari Libur') }}</p>
                             </a>
                         </li>
-                        <li @if ($pageSlug == 'sgn-lain') class="active " @endif>
-                            <a href="{{ route('user.index')  }}">
+                        <li @if ($pageSlug == 'sgn-report') class="active " @endif>
+                            <a href="{{ route('sgn.report')  }}">
                                 <i class="tim-icons icon-bullet-list-67"></i>
-                                <p>{{ _('Lain-lain') }}</p>
+                                <p>{{ _('Report') }}</p>
                             </a>
                         </li>
                     </ul>
                 </div>
-            </li>
+            </li> --}}
             <li>
                 <a data-toggle="collapse" href="#scb-menus" 
                     aria-expanded="{{ str_contains($pageSlug, 'scb') ? 'true' : 'false' }}">
@@ -76,16 +82,22 @@
                                 <p>{{ _('Karyawan') }}</p>
                             </a>
                         </li>
-                        <li @if ($pageSlug == 'scb-pk') class="active " @endif>
+                        <!-- <li @if ($pageSlug == 'scb-pk') class="active " @endif>
                             <a href="{{ route('scb.pk')  }}">
                                 <i class="tim-icons icon-link-72"></i>
                                 <p>{{ _('Perjanjian Kerja') }}</p>
                             </a>
-                        </li>
+                        </li> -->
                         <li @if ($pageSlug == 'scb-kehadiran') class="active " @endif>
                             <a href="{{ route('scb.kehadiran')  }}">
                                 <i class="tim-icons icon-calendar-60"></i>
                                 <p>{{ _('Kehadiran') }}</p>
+                            </a>
+                        </li>
+                        <li @if ($pageSlug == 'scb-cuti') class="active " @endif>
+                            <a href="{{ route('scb.cuti')  }}">
+                                <i class="tim-icons icon-spaceship"></i>
+                                <p>{{ _('Cuti') }}</p>
                             </a>
                         </li>
                         <li @if ($pageSlug == 'scb-gajian') class="active " @endif>
@@ -100,28 +112,28 @@
                                 <p>{{ _('Hari Libur') }}</p>
                             </a>
                         </li>
-                        <li @if ($pageSlug == 'scb-lain') class="active " @endif>
-                            <a href="{{ route('user.index')  }}">
+                        <li @if ($pageSlug == 'scb-report') class="active " @endif>
+                            <a href="{{ route('scb.report')  }}">
                                 <i class="tim-icons icon-bullet-list-67"></i>
-                                <p>{{ _('Lain-lain') }}</p>
+                                <p>{{ _('Report') }}</p>
                             </a>
                         </li>
                     </ul>
                 </div>
             </li>
             
-            <li @if ($pageSlug == 'icons') class="active " @endif>
+            {{-- <li @if ($pageSlug == 'icons') class="active " @endif>
                 <a href="{{ route('pages.icons') }}">
                     <i class="tim-icons icon-atom"></i>
                     <p>{{ _('Icons') }}</p>
                 </a>
             </li>
-{{--             <li @if ($pageSlug == 'maps') class="active " @endif>
+            <li @if ($pageSlug == 'maps') class="active " @endif>
                 <a href="{{ route('pages.maps') }}">
                     <i class="tim-icons icon-pin"></i>
                     <p>{{ _('Maps') }}</p>
                 </a>
-            </li> --}}
+            </li>
             <li @if ($pageSlug == 'notifications') class="active " @endif>
                 <a href="{{ route('pages.notifications') }}">
                     <i class="tim-icons icon-bell-55"></i>
@@ -145,7 +157,7 @@
                     <i class="tim-icons icon-world"></i>
                     <p>{{ _('RTL Support') }}</p>
                 </a>
-            </li>
+            </li> --}}
             {{-- <li class=" {{ $pageSlug == 'backup' ? 'active' : '' }} bg-info">
                 <form action="backup" method="post">
                     @csrf

@@ -64,7 +64,8 @@
   <table width="100%" style="margin-top:-8px">
     <tr>
       <td width="8%" rowspan="2">
-        <img class="w-100" style="margin-left: -8px" src="{{public_path('white/img/logo-color.jpg')}}">
+        <img class="w-100" style="margin-left: -8px" src="{{asset('white/img/logo-color.png')}}">
+		<!-- <img class="w-100" style="margin-left: -8px" src="./logo-color.jpg"> -->
       </td>
       <td height="50px" class="vertical-bottom">
         @if($db == 'sgn')
